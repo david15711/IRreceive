@@ -7,11 +7,11 @@
 > photo transistor : ST5811
 
 
-> Use ADC + DMA, TIM
+> Use ADC + DMA, TIM, UART
 
 
-> Use moving average
+> Use Exponential moving average exponential weight = 0.25
 
 
-> Use UART to start signal
+> Use UART to send decoded data
 ***
