@@ -17,11 +17,6 @@ extern ADC_HandleTypeDef hadc1;
 extern DMA_HandleTypeDef hdma_adc1;
 extern TIM_HandleTypeDef htim1;
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
-{
-  (void)hadc;
-}
-
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if(htim->Instance == TIM1)
@@ -30,9 +25,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
 }
 
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+  HAL_DMA_Start_IT(hadc->DMA_Handle, (uint32_t)&hadc->Instance->DR, (uint32_t)adc_buffer, MOV_AVG_BUF);
+}
+
 void apInit(void)
 {
-	uartOpen(_DEF_UART2, 115200);
+
 }
 
 /**
@@ -49,30 +49,24 @@ void apMain(void)
 {
 
   bool bit, last_bit, nec_start;
-  uint16_t pos, prev_pos, raw, filtered, threshold, bit_count;
-  uint32_t data, t, pulse_width, burst_width, space_width, last_edge_time;
+  uint16_t raw, filtered, bit_count;
+  uint32_t threshold, data, t, pulse_width, burst_width, space_width, last_edge_time;
+  uint16_t pos, prev_pos = 0;
 
-  for(int i = 0; i < 128; i++) {
-    HAL_ADC_Start(&hadc1);
-    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    threshold += HAL_ADC_GetValue(&hadc1);
-  }
-  threshold >>= 7;
-  threshold += 200;
-  HAL_ADC_Stop(&hadc1);
-  HAL_ADC_Start_DMA(&hadc1, adc_buffer, MOV_AVG_BUF);
 
+  threshold = 1500;
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, MOV_AVG_BUF);
   __HAL_TIM_SET_COUNTER(&htim1, 0);
-  HAL_TIM_Base_Start_IT(&htim1);
+  HAL_TIM_Base_Start(&htim1);
   while(1)
   {
-    pos = MOV_AVG_BUF - __HAL_DMA_GET_COUNTER(&hdma_adc1);
+    pos = (MOV_AVG_BUF - __HAL_DMA_GET_COUNTER(&hdma_adc1)) % 2048;
     if (pos != prev_pos)
     {
       //alpha = 0.25 exponential mv avg, digitalization
       raw = adc_buffer[pos];
       filtered = filtered - (filtered>>2) + (raw>>2);
-      bit = (filtered < threshold) ? NEC_SPACE : NEC_BURST;
+      bit = (filtered > threshold) ? NEC_SPACE : NEC_BURST;
       digit_buffer[pos] = bit;
 
       //edge detect
@@ -80,12 +74,14 @@ void apMain(void)
       {
         if (!bit)//falling edge
         {
+          ledToggle(0);
           t = (timer_tick << 16) | __HAL_TIM_GET_COUNTER(&htim1);;
           burst_width = t - last_edge_time;
           last_edge_time = t;
         }
         else     //rising edge
         {
+          ledToggle(0);
           t = (timer_tick << 16) | __HAL_TIM_GET_COUNTER(&htim1);;
           space_width = t - last_edge_time;
           last_edge_time = t;
@@ -102,6 +98,7 @@ void apMain(void)
           uartPrintf(_DEF_UART2, "data: 0x%08x  bit: %d\r\n", data, bit_count);
           data = 0;
           bit_count = 0;
+          timer_tick = 0;
         }
 
         if(nec_start)

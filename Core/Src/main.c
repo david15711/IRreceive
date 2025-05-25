@@ -71,7 +71,6 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
 
-
   /* USER CODE BEGIN Init */
   hwInit();
   apInit();
@@ -86,7 +85,6 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -102,8 +100,6 @@ int main(void)
   /* USER CODE END 3 */
 }
 
-/* USER CODE BEGIN 4 */
-/* USER CODE END 4 */
 
 #ifdef  USE_FULL_ASSERT
 /**

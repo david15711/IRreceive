@@ -39,7 +39,7 @@ bool ledInit(void)
     GPIO_InitStruct.Pin = led_tbl[i].pin;
     HAL_GPIO_Init(led_tbl[i].port, &GPIO_InitStruct);
   }
-
+  return ret;
 }
 
 void ledOn(uint8_t ch)

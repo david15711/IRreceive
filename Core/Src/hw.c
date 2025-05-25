@@ -20,6 +20,7 @@ void hwInit(void)
 	uartOpen(_DEF_UART2, 115200);
 	ledInit();
 	adcInit();
+	adcOpen(_DEF_ADC1_10);
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_TIM1_Init();

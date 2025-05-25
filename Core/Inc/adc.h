@@ -10,6 +10,9 @@
 
 #include "hw_def.h"
 
+#define ADC_MAX_CH  HW_ADC_MAX_CH
+
 bool adcInit(void);
+bool adcOpen(uint8_t ch);
 
 #endif /* INC_ADC_H_ */

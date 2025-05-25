@@ -10,7 +10,6 @@
 
 #include "hw.h"
 
-static void runEMA(uint16_t* data, uint8_t pos);
 void apInit(void);
 void apMain(void);
 

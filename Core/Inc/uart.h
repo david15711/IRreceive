@@ -8,9 +8,7 @@
 #ifndef INC_UART_H_
 #define INC_UART_H_
 
-
 #include "hw_def.h"
-
 
 #ifdef _USE_HW_UART
 

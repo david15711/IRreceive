@@ -15,7 +15,8 @@
 #include <string.h>
 #include <stdarg.h>
 
-#define _DEF_UART2 0
+#define _DEF_ADC1_10   0
+#define _DEF_UART2  0
 
 #define B1_Pin GPIO_PIN_13
 #define B1_GPIO_Port GPIOC
